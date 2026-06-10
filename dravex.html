@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dravex — Modern Slavery & Supply Chain Risk Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F1411;
+    --paper: #F7F5F0;
+    --paper-line: #E2DED2;
+    --rust: #C2410C;
+    --green: #1B5E4F;
+    --sage: #9CA39B;
+    --sage-dim: #C9CDC4;
+    --max: 1180px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 32px; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(247, 245, 240, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 32px; max-width: var(--max); margin: 0 auto;
+  }
+  .logo {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px;
+    text-decoration: none; color: var(--ink); display: flex; align-items: baseline; gap: 8px;
+  }
+  .logo .dot { color: var(--rust); }
+  .nav-links {
+    display: flex; align-items: center; gap: 32px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .nav-links a { text-decoration: none; color: var(--ink); opacity: 0.65; transition: opacity 0.2s; }
+  .nav-links a:hover { opacity: 1; }
+  .nav-cta {
+    border: 1px solid var(--ink); padding: 9px 18px !important; border-radius: 2px; opacity: 1 !important;
+  }
+  .nav-cta:hover { background: var(--ink); color: var(--paper); }
+  @media (max-width: 760px) { .nav-links { display: none; } }
+
+  /* Tab label */
+  .tab-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.18em; color: var(--rust); display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+  }
+  .tab-label::before { content: ""; width: 28px; height: 1px; background: var(--rust); }
+
+  /* Type */
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; }
+  h1 { font-size: clamp(40px, 6vw, 68px); }
+  h2 { font-size: clamp(30px, 4vw, 44px); }
+  h3 { font-size: 22px; font-weight: 600; }
+  .lede { font-size: 19px; color: #3a3f3c; max-width: 540px; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* Hero */
+  .hero { padding: 90px 0 100px; border-bottom: 1px solid var(--paper-line); }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: center; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.18em; color: var(--rust); margin-bottom: 22px;
+  }
+  .hero h1 { margin-bottom: 24px; }
+  .hero h1 em { font-style: italic; color: var(--green); }
+  .hero-actions { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 2px;
+    font-size: 14px; font-weight: 500; text-decoration: none; font-family: 'IBM Plex Sans', sans-serif;
+    transition: all 0.2s; border: 1px solid var(--ink); cursor: pointer;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--rust); border-color: var(--rust); }
+  .btn-ghost { background: transparent; color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  /* Risk record card */
+  .record-card {
+    background: var(--ink); color: var(--paper); border-radius: 4px; padding: 28px;
+    font-family: 'IBM Plex Mono', monospace; position: relative; overflow: hidden;
+  }
+  .record-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 1px solid rgba(247,245,240,0.15); padding-bottom: 16px; margin-bottom: 16px;
+  }
+  .record-id { font-size: 12px; color: var(--sage-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .record-name { font-family: 'Fraunces', serif; font-size: 22px; color: var(--paper); margin-top: 4px; }
+  .risk-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; padding: 5px 10px; border-radius: 2px; white-space: nowrap; }
+  .risk-tag.elevated { background: rgba(194,65,12,0.18); color: #ff9b6b; border: 1px solid rgba(194,65,12,0.4); }
+  .score-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
+  .score-num { font-family: 'Fraunces', serif; font-size: 52px; color: var(--paper); }
+  .score-label { font-size: 12px; color: var(--sage-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .signal-feed { font-size: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .signal-row {
+    display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center;
+    padding: 10px 0; border-top: 1px solid rgba(247,245,240,0.08); color: var(--sage-dim);
+  }
+  .signal-row:first-child { border-top: none; }
+  .signal-time { color: rgba(247,245,240,0.4); }
+  .signal-text { color: var(--paper); opacity: 0.85; }
+  .signal-delta { text-align: right; }
+  .signal-delta.up { color: #ff9b6b; }
+  .signal-delta.down { color: #6fcdb8; }
+
+  /* Stats bar */
+  .statsbar { border-bottom: 1px solid var(--paper-line); padding: 40px 0; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+  @media (max-width: 760px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 38px; color: var(--green); }
+  .stat-label { font-size: 13px; color: var(--sage); margin-top: 6px; max-width: 220px; }
+
+  /* Sections */
+  section { padding: 90px 0; border-bottom: 1px solid var(--paper-line); }
+  section:last-of-type { border-bottom: none; }
+  .section-head { max-width: 640px; margin-bottom: 56px; }
+
+  /* Feature grid */
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper-line); border: 1px solid var(--paper-line); }
+  @media (max-width: 900px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature { background: var(--paper); padding: 36px; }
+  .feature-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--rust); margin-bottom: 16px; }
+  .feature h3 { margin-bottom: 12px; }
+  .feature p { color: #4a4f4c; font-size: 15px; }
+
+  /* Split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 40px; } }
+  .split p { color: #4a4f4c; margin-bottom: 16px; }
+
+  /* Document mock */
+  .doc-mock {
+    background: #fff; border: 1px solid var(--paper-line); box-shadow: 0 24px 60px -30px rgba(15,20,17,0.25);
+    padding: 40px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; position: relative;
+  }
+  .doc-mock-head {
+    display: flex; justify-content: space-between; border-bottom: 2px solid var(--ink);
+    padding-bottom: 12px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage);
+  }
+  .doc-mock h4 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+  .doc-line { height: 8px; background: var(--paper-line); border-radius: 1px; margin-bottom: 10px; }
+  .doc-line.short { width: 60%; }
+  .doc-line.medium { width: 80%; }
+  .doc-stamp {
+    position: absolute; bottom: 28px; right: 28px; border: 2px solid var(--green); color: var(--green);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em;
+    padding: 8px 14px; border-radius: 2px; transform: rotate(-4deg); font-weight: 600;
+  }
+
+  /* Pipeline */
+  .pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  @media (max-width: 900px) { .pipeline { grid-template-columns: 1fr; } }
+  .pipe-step { border-top: 2px solid var(--ink); padding-top: 18px; }
+  .pipe-num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--rust); margin-bottom: 10px; }
+  .pipe-step h3 { font-size: 18px; margin-bottom: 8px; }
+  .pipe-step p { font-size: 14px; color: #4a4f4c; }
+
+  /* Founder */
+  .founder-grid { display: grid; grid-template-columns: 280px 1fr; gap: 56px; align-items: start; }
+  @media (max-width: 760px) { .founder-grid { grid-template-columns: 1fr; } }
+  .founder-photo {
+    aspect-ratio: 4/5; background: linear-gradient(160deg, var(--ink) 0%, var(--green) 100%);
+    border-radius: 4px; display: flex; align-items: flex-end; padding: 24px; position: relative; overflow: hidden;
+  }
+  .founder-photo::after {
+    content: "FA"; position: absolute; top: -40px; right: -20px; font-family: 'Fraunces', serif;
+    font-size: 220px; color: rgba(247,245,240,0.06); font-weight: 600;
+  }
+  .founder-photo span {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--sage-dim);
+    text-transform: uppercase; letter-spacing: 0.15em; position: relative; z-index: 1;
+  }
+  .founder-name { font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 4px; }
+  .founder-title { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--rust); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+  .founder-bio p { color: #3a3f3c; margin-bottom: 14px; max-width: 620px; }
+  .founder-creds { display: flex; gap: 28px; margin-top: 28px; flex-wrap: wrap; }
+  .cred { border-left: 2px solid var(--green); padding-left: 12px; }
+  .cred-num { font-family: 'Fraunces', serif; font-size: 24px; color: var(--green); }
+  .cred-label { font-size: 12px; color: var(--sage); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* Quote */
+  .quote-block {
+    border-left: 3px solid var(--green); padding-left: 28px; font-family: 'Fraunces', serif;
+    font-size: 24px; font-style: italic; color: var(--ink); max-width: 760px;
+  }
+  .quote-attr { font-family: 'IBM Plex Mono', monospace; font-style: normal; font-size: 13px; color: var(--sage); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; }
+
+  /* Definition list */
+  .def-list { display: flex; flex-direction: column; }
+  .def-row { display: grid; grid-template-columns: 200px 1fr; gap: 32px; padding: 28px 0; border-top: 1px solid var(--paper-line); }
+  .def-row:last-child { border-bottom: 1px solid var(--paper-line); }
+  @media (max-width: 700px) { .def-row { grid-template-columns: 1fr; gap: 8px; } }
+  .def-row dt { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rust); }
+  .def-row dd p { color: #4a4f4c; }
+  .def-row dd h3 { margin-bottom: 8px; }
+
+  /* CTA banner */
+  .cta-banner { background: var(--ink); color: var(--paper); border-radius: 4px; padding: 64px; text-align: center; }
+  .cta-banner h2 { color: var(--paper); margin-bottom: 16px; }
+  .cta-banner p { color: var(--sage-dim); max-width: 480px; margin: 0 auto 32px; }
+  .cta-banner .hero-actions { justify-content: center; }
+  .cta-banner .btn-primary { background: var(--rust); border-color: var(--rust); color: var(--paper); }
+  .cta-banner .btn-primary:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+  .cta-banner .btn-ghost { border-color: var(--sage-dim); color: var(--paper); }
+  .cta-banner .btn-ghost:hover { background: var(--paper); color: var(--ink); }
+  @media (max-width: 600px) { .cta-banner { padding: 40px 24px; } }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-grid .full { grid-column: 1 / -1; }
+  label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage); margin-bottom: 8px; }
+  input, select, textarea {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--paper-line);
+    padding: 10px 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-bottom-color: var(--rust); }
+  textarea { resize: vertical; min-height: 90px; }
+
+  /* Footer */
+  footer { padding: 48px 0; border-top: 1px solid var(--paper-line); }
+  .footer-grid { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px; }
+  .footer-cols { display: flex; gap: 64px; flex-wrap: wrap; }
+  .footer-col h4 { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sage); margin-bottom: 14px; }
+  .footer-col a { display: block; text-decoration: none; color: var(--ink); font-size: 14px; margin-bottom: 8px; opacity: 0.75; }
+  .footer-col a:hover { opacity: 1; color: var(--rust); }
+  .footer-bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--paper-line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--sage); }
+
+  /* Page header for inner sections */
+  .page-header { padding: 64px 0 56px; border-bottom: 1px solid var(--paper-line); }
+  .page-header h1 { margin-bottom: 16px; }
+  .page-header .lede { max-width: 620px; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <a href="#home" class="logo">dravex<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#product">Product</a>
+      <a href="#compliance">Compliance</a>
+      <a href="#founder">Founder</a>
+      <a href="#contact" class="nav-cta">Request access</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HOME -->
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">Supplier risk intelligence · Modern slavery & human rights</div>
+      <h1>Your modern slavery statement, <em>written from evidence</em>, not a template.</h1>
+      <p class="lede">Dravex scores every supplier in your chain against audit data and live news signals, drafts your UK Modern Slavery Act and EU CSDDD disclosures automatically, and flags worker grievance signals before they become headlines.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">Request access</a>
+        <a href="#product" class="btn btn-ghost">See how scoring works</a>
+      </div>
+    </div>
+    <div class="record-card">
+      <div class="record-head">
+        <div>
+          <div class="record-id">Supplier record · SC-04471</div>
+          <div class="record-name">Northcrest Textiles Ltd.</div>
+        </div>
+        <div class="risk-tag elevated">Elevated</div>
+      </div>
+      <div class="score-row">
+        <div class="score-num">71</div>
+        <div class="score-label">Risk score / 100<br>↑ 14 pts past 30 days</div>
+      </div>
+      <div class="signal-feed">
+        <div class="signal-row">
+          <div class="signal-time mono">06:42</div>
+          <div class="signal-text">Local press: wage dispute, garment unit, Tamil Nadu</div>
+          <div class="signal-delta up mono">+9</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-time mono">14:10</div>
+          <div class="signal-text">Audit gap: recruitment fee policy not on file</div>
+          <div class="signal-delta up mono">+5</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-time mono">3d ago</div>
+          <div class="signal-text">Grievance line: 3 anonymized complaints, overtime</div>
+          <div class="signal-delta up mono">+4</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-time mono">9d ago</div>
+          <div class="signal-text">Tier-2 supplier disclosed, certification verified</div>
+          <div class="signal-delta down mono">−3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="statsbar">
+  <div class="wrap stats-grid">
+    <div>
+      <div class="stat-num">~19,000</div>
+      <div class="stat-label">UK companies above the £36m turnover threshold required to file under Section 54</div>
+    </div>
+    <div>
+      <div class="stat-num">6 mo</div>
+      <div class="stat-label">Statutory window to publish after financial year-end — most teams start late</div>
+    </div>
+    <div>
+      <div class="stat-num">1,000s</div>
+      <div class="stat-label">Tier 1–3 suppliers per statement, almost none individually risk-scored</div>
+    </div>
+    <div>
+      <div class="stat-num">CSDDD</div>
+      <div class="stat-label">EU due diligence rules extend the same exposure to in-scope EU operators</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tab-label">The problem</div>
+      <h2>Most statements are written once a year, by hand, from memory.</h2>
+      <p class="lede" style="margin-top:16px;">Compliance, legal and procurement teams piece together a Modern Slavery statement from supplier questionnaires, last year's PDF, and whatever anyone remembers about a news story. The supply chain itself — thousands of suppliers, sub-suppliers and labour agencies — is rarely scored at all.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-tag">Visibility gap</div>
+        <h3>Risk lives below tier 1</h3>
+        <p>The suppliers most exposed to forced labour and recruitment-fee practices are usually two or three tiers down — outside the reach of annual questionnaires.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Reporting burden</div>
+        <h3>One statement, every framework</h3>
+        <p>UK MSA, Australia's Modern Slavery Act, and the EU's Corporate Sustainability Due Diligence Directive each ask for overlapping but differently-worded disclosures.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Late signal</div>
+        <h3>News breaks before audits do</h3>
+        <p>Labour disputes, NGO investigations and grievance reports surface in local press and worker hotlines months before they reach a formal audit cycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT -->
+<section id="product">
+  <div class="page-header" style="border-bottom:none; padding-bottom:0;">
+    <div class="tab-label">Product</div>
+    <h2>One supplier record. Three modules.</h2>
+    <p class="lede" style="margin-top:16px;">Risk scoring, signal detection and reporting automation all read from and write to the same per-supplier record — so the statement you publish reflects what your supply chain is actually doing.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tab-label">Module 01</div>
+    <div class="split">
+      <div>
+        <h3>Supplier risk scoring</h3>
+        <p style="margin-top:20px;">Every supplier in your declared supply chain — across as many tiers as you can map — gets a single risk score from 0–100, built from:</p>
+        <div class="def-list" style="margin-top:8px;">
+          <div class="def-row">
+            <dt>Audit data</dt>
+            <dd><p>Findings, certifications and corrective action history from SMETA, SA8000, BSCI and your own audit programme, normalised into a common schema.</p></dd>
+          </div>
+          <div class="def-row">
+            <dt>Sector & geography</dt>
+            <dd><p>Baseline risk weighting drawn from recognised indices for forced labour prevalence by sector, country and sourcing region.</p></dd>
+          </div>
+          <div class="def-row">
+            <dt>News & media signals</dt>
+            <dd><p>Local and international press, NGO investigations and trade union reporting, matched to named entities and facility locations.</p></dd>
+          </div>
+          <div class="def-row">
+            <dt>Trend</dt>
+            <dd><p>Score movement over time, so a supplier that is improving reads differently from one that looks the same on paper but is trending worse.</p></dd>
+          </div>
+        </div>
+      </div>
+      <div class="record-card">
+        <div class="record-head">
+          <div>
+            <div class="record-id">Supplier record · SC-04471</div>
+            <div class="record-name">Northcrest Textiles Ltd.</div>
+          </div>
+          <div class="risk-tag elevated">Elevated</div>
+        </div>
+        <div class="score-row">
+          <div class="score-num">71</div>
+          <div class="score-label">Risk score / 100<br>Tier 2 · Garment manufacturing<br>Tamil Nadu, India</div>
+        </div>
+        <div class="signal-feed">
+          <div class="signal-row">
+            <div class="signal-time mono">Audit</div>
+            <div class="signal-text">SMETA 2024: 2 major non-conformances, recruitment fees</div>
+            <div class="signal-delta up mono">+18</div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-time mono">News</div>
+            <div class="signal-text">Regional outlet: wage payment delays reported, 2 facilities</div>
+            <div class="signal-delta up mono">+9</div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-time mono">Sector</div>
+            <div class="signal-text">Garment manufacturing, South Asia — baseline weighting</div>
+            <div class="signal-delta up mono">+12</div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-time mono">Cert.</div>
+            <div class="signal-text">SA8000 certification renewed, valid through 2027</div>
+            <div class="signal-delta down mono">−6</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tab-label">Module 02</div>
+    <div class="section-head">
+      <h2>Worker grievance signal detection</h2>
+      <p class="lede" style="margin-top:16px;">The earliest evidence of forced labour or exploitative conditions rarely arrives through formal channels first. Dravex monitors the channels where it actually surfaces, and ties each signal back to a supplier and tier.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-tag">Local-language media</div>
+        <h3>Press monitoring</h3>
+        <p>Continuous monitoring of local and regional news in sourcing geographies, translated and matched against your supplier and facility list by name and location.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">NGO & union data</div>
+        <h3>Third-party reporting</h3>
+        <p>Investigations and reports from labour rights organisations and trade unions are screened for mentions of entities in your declared supply chain.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Grievance mechanisms</div>
+        <h3>Worker-reported signals</h3>
+        <p>Where a grievance line or worker voice channel exists, anonymized complaint themes — recruitment fees, document retention, overtime — are categorised and linked to the relevant supplier record.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Pattern matching</div>
+        <h3>Cross-supplier patterns</h3>
+        <p>Recurring issues across multiple suppliers in the same region or labour-agency network are flagged, since individually they may look minor.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Severity tiers</div>
+        <h3>Triage, not noise</h3>
+        <p>Signals are categorised by severity and confidence so your team reviews a short list of material changes, not a raw news feed.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-tag">Audit trail</div>
+        <h3>Source-linked evidence</h3>
+        <p>Every signal that contributes to a score change is traceable back to its source — useful for due diligence files and statement evidence alike.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tab-label">Module 03</div>
+    <div class="split">
+      <div class="doc-mock">
+        <div class="doc-mock-head">
+          <span>Draft · Section 54</span>
+          <span>FY 2025/26</span>
+        </div>
+        <h4>Slavery & Human Trafficking Statement</h4>
+        <div class="doc-line short" style="background:var(--green); opacity:0.25;"></div>
+        <div class="doc-line medium"></div>
+        <div class="doc-line"></div>
+        <div class="doc-line short" style="background:var(--rust); opacity:0.25; margin-top:24px;"></div>
+        <div class="doc-line medium"></div>
+        <div class="doc-line"></div>
+        <div class="doc-line short"></div>
+        <div class="doc-line medium" style="background:var(--green); opacity:0.25; margin-top:24px;"></div>
+        <div class="doc-line"></div>
+        <div class="doc-stamp">Draft v3</div>
+      </div>
+      <div>
+        <h3>Mandatory reporting automation</h3>
+        <p style="margin-top:20px;">Dravex maps your live supplier risk data directly onto the structure each framework expects, and produces a working draft for legal and compliance review — not a final filing.</p>
+        <div class="def-list" style="margin-top:8px;">
+          <div class="def-row">
+            <dt>UK MSA</dt>
+            <dd><p>Drafts a Section 54 statement structured against the Home Office's statement content guidance, including organisational structure, policies, due diligence, risk assessment and training sections.</p></dd>
+          </div>
+          <div class="def-row">
+            <dt>EU CSDDD</dt>
+            <dd><p>Maps the same underlying supplier risk data to the due diligence, risk identification and mitigation disclosures expected under the EU's Corporate Sustainability Due Diligence Directive for in-scope companies.</p></dd>
+          </div>
+          <div class="def-row">
+            <dt>Sign-off ready</dt>
+            <dd><p>Final statements still require board approval and director sign-off — Dravex prepares the evidence-backed draft, your legal team owns the filing.</p></dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section id="compliance">
+  <div class="wrap">
+    <div class="page-header" style="border-bottom:none; padding-bottom:0;">
+      <div class="tab-label">Compliance</div>
+      <h2>Who has to file, what for, and by when.</h2>
+      <p class="lede" style="margin-top:16px;">A short reference for the obligations dravex is built around. This is informational, not legal advice — confirm your organisation's specific obligations with counsel.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tab-label">UK · Modern Slavery Act 2015, s.54</div>
+    <div class="section-head"><h3 style="font-size:28px;">The UK Modern Slavery Act</h3></div>
+    <div class="def-list">
+      <div class="def-row">
+        <dt>Who's in scope</dt>
+        <dd>
+          <h3>Commercial organisations, £36m+ global turnover</h3>
+          <p>Any body corporate or partnership that supplies goods or services, carries on part of its business in the UK, and has a total global turnover of £36 million or more — including UK turnover from overseas-headquartered groups. The threshold applies to the group's combined turnover, including subsidiaries.</p>
+        </dd>
+      </div>
+      <div class="def-row">
+        <dt>What's required</dt>
+        <dd>
+          <h3>An annual slavery and human trafficking statement</h3>
+          <p>The statement must set out the steps the organisation has taken — or state that no steps were taken — to ensure modern slavery is not occurring in its own business or supply chains. The Home Office's updated guidance breaks recommended content into level 1 and level 2 disclosures, covering organisational structure, policies, due diligence, risk assessment, KPIs and training.</p>
+        </dd>
+      </div>
+      <div class="def-row">
+        <dt>Approval & publication</dt>
+        <dd>
+          <h3>Board-approved, director-signed, on the homepage</h3>
+          <p>The statement must be approved by the board (or equivalent) and signed by a director or designated partner, then published prominently on the organisation's website with a link from the homepage. Statutory guidance recommends publishing within six months of the financial year-end.</p>
+        </dd>
+      </div>
+      <div class="def-row">
+        <dt>If you don't file</dt>
+        <dd>
+          <h3>Injunction risk, not a fine</h3>
+          <p>There's no fixed civil penalty for non-compliance, but the Secretary of State can seek a court injunction requiring an organisation to comply, and failing to follow a court order can lead to contempt proceedings — alongside the reputational exposure of having no statement, or a weak one, on file.</p>
+        </dd>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tab-label">EU · Corporate Sustainability Due Diligence Directive</div>
+    <div class="section-head"><h3 style="font-size:28px;">EU CSDDD</h3></div>
+    <div class="def-list">
+      <div class="def-row">
+        <dt>Who's in scope</dt>
+        <dd>
+          <h3>Larger EU and non-EU companies operating in the EU</h3>
+          <p>The CSDDD applies to large EU companies above defined turnover and headcount thresholds, and to non-EU companies generating significant turnover within the EU — phased in over several years by company size.</p>
+        </dd>
+      </div>
+      <div class="def-row">
+        <dt>What's required</dt>
+        <dd>
+          <h3>Due diligence across the value chain</h3>
+          <p>In-scope companies must identify, prevent, mitigate and account for adverse human rights and environmental impacts across their own operations, subsidiaries and business partners — including, where relevant, forced labour and labour rights risks in supply chains.</p>
+        </dd>
+      </div>
+      <div class="def-row">
+        <dt>Why it matters alongside the UK MSA</dt>
+        <dd>
+          <h3>Overlapping evidence, different formats</h3>
+          <p>A company already mapping supplier-level risk for a UK Modern Slavery statement holds much of the underlying evidence a CSDDD due diligence disclosure also asks for — the gap is usually in how that evidence is structured and documented, not in whether it exists.</p>
+        </dd>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="quote-block">
+      "The Modern Slavery Act doesn't grade you on how the statement reads — it requires that the steps were actually taken. Dravex exists so that the statement is a record of the work, not a substitute for it."
+    </div>
+    <div class="quote-attr">— Fyka Ansari, Founder, Dravex</div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section id="founder">
+  <div class="wrap">
+    <div class="page-header" style="border-bottom:none; padding-bottom:40px;">
+      <div class="tab-label">Founder</div>
+      <h2>Why dravex exists.</h2>
+    </div>
+    <div class="founder-grid">
+      <div class="founder-photo">
+        <span>Founder · Dravex</span>
+      </div>
+      <div>
+        <div class="founder-name">Fyka Ansari</div>
+        <div class="founder-title">Founder & CEO, Dravex</div>
+        <div class="founder-bio">
+          <p>Fyka founded Dravex after spending time close to corporate compliance and supply chain teams and seeing the same pattern repeat: the Modern Slavery statement was treated as a once-a-year writing task, owned by whoever had bandwidth in legal or sustainability, and built almost entirely from what suppliers chose to disclose on a questionnaire.</p>
+          <p>Meanwhile the actual risk — recruitment fee practices, withheld documents, unsafe overtime — was often visible months earlier in local news coverage, NGO reports and worker grievance channels, but none of that reached the people writing the statement.</p>
+          <p>Dravex is built on a simple premise: if the evidence already exists in public signals and audit data, the statement should be an output of that evidence, not a parallel exercise written from memory. Fyka leads product and policy mapping at Dravex, working closely with compliance teams, auditors and human rights researchers to keep the scoring model grounded in how due diligence actually works in practice.</p>
+        </div>
+        <div class="founder-creds">
+          <div class="cred">
+            <div class="cred-num">~19,000</div>
+            <div class="cred-label">UK companies in scope of s.54</div>
+          </div>
+          <div class="cred">
+            <div class="cred-num">2</div>
+            <div class="cred-label">Frameworks mapped at launch</div>
+          </div>
+          <div class="cred">
+            <div class="cred-num">1</div>
+            <div class="cred-label">Risk record per supplier</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="page-header" style="border-bottom:none; padding-bottom:40px;">
+      <div class="tab-label">Contact</div>
+      <h2>Tell us about your supply chain.</h2>
+      <p class="lede" style="margin-top:16px;">Dravex is currently working with a small group of design partners. Share a little about your reporting timeline and supplier base, and we'll get back to you.</p>
+    </div>
+    <div class="split">
+      <form onsubmit="event.preventDefault(); alert('Thanks — we will be in touch shortly.'); this.reset();">
+        <div class="form-grid">
+          <div>
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" placeholder="Jordan Patel">
+          </div>
+          <div>
+            <label for="role">Role</label>
+            <input type="text" id="role" name="role" placeholder="Head of Compliance">
+          </div>
+          <div>
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" placeholder="Company name">
+          </div>
+          <div>
+            <label for="turnover">Approx. annual turnover</label>
+            <select id="turnover" name="turnover">
+              <option>Under £36m</option>
+              <option>£36m – £100m</option>
+              <option>£100m – £500m</option>
+              <option>£500m+</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div>
+            <label for="email">Work email</label>
+            <input type="email" id="email" name="email" placeholder="you@company.com">
+          </div>
+          <div>
+            <label for="suppliers">Approx. number of direct suppliers</label>
+            <input type="text" id="suppliers" name="suppliers" placeholder="e.g. 200">
+          </div>
+          <div class="full">
+            <label for="frameworks">Frameworks you report under</label>
+            <input type="text" id="frameworks" name="frameworks" placeholder="UK MSA, EU CSDDD, Australia MSA, other">
+          </div>
+          <div class="full">
+            <label for="message">What's prompting you to look at this now?</label>
+            <textarea id="message" name="message" placeholder="e.g. Upcoming statement deadline, new supplier mapping requirement, recent audit findings..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:32px;">Submit request</button>
+      </form>
+      <div>
+        <div class="tab-label">Direct</div>
+        <h3>Prefer email?</h3>
+        <p style="color:#4a4f4c; margin-top:8px; margin-bottom:32px;">Reach the team directly and we'll route it to the right person.</p>
+        <div class="def-list">
+          <div class="def-row" style="grid-template-columns: 140px 1fr;">
+            <dt>General</dt>
+            <dd><p class="mono">hello@dravex.com</p></dd>
+          </div>
+          <div class="def-row" style="grid-template-columns: 140px 1fr;">
+            <dt>Founder</dt>
+            <dd><p class="mono">fyka@dravex.com</p></dd>
+          </div>
+          <div class="def-row" style="grid-template-columns: 140px 1fr;">
+            <dt>Press</dt>
+            <dd><p class="mono">press@dravex.com</p></dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a href="#home" class="logo">dravex<span class="dot">.</span></a>
+        <p style="margin-top:14px; max-width:280px; color: var(--sage); font-size: 14px;">Supplier risk scoring and mandatory reporting automation for modern slavery and human rights due diligence.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Site</h4>
+          <a href="#home">Home</a>
+          <a href="#product">Product</a>
+          <a href="#compliance">Compliance</a>
+          <a href="#founder">Founder</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Frameworks</h4>
+          <a href="#compliance">UK Modern Slavery Act</a>
+          <a href="#compliance">EU CSDDD</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Dravex. All rights reserved.</span>
+      <span>Built for supply chains that don't fit on one slide.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
